@@ -119,7 +119,7 @@ encoding_accumulator = 2161 + 5940 * 52 = 311041
 
 The remaining locations are all 'h' which does not need to be encoded since there is only 1 permutation possible.  This would also be the case if the message was all a single character, in that case the algorithm is essentially run length encoding using the frequency table.
 
-Thus encoding is complete, the final value to store = 311041.  This requires 3 bytes / 19 bits to store, while the original message was 8 bytes / 96 bits.
+Thus encoding is complete, the final value to store = 311041.  This requires 3 bytes / 19 bits to store, while the original message was 12 bytes / 96 bits.
 ## Decoding
 Strike that, reverse it.
 #### Inputs 
