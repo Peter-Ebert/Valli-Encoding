@@ -1,4 +1,5 @@
 # Valli-Encoding
+**EDIT: I'm learning the Shannon limit may not apply here, since I am relying on the changing symbol counts to encode the remaining data, please bear with me I will correct errors as the dust settles.**  
 Proof of concept entropy encoder with output size below the Shannon limit.
 
 **Table of Contents**  
