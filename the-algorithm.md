@@ -51,7 +51,7 @@ encoding_accumulator = 0
 ```
 symbol_binomial_sum = 0
 # First 'i' in message at index 1
-symbol_binomial_sum = symbol_binomial_sum + location choose count = 0 + 1 choose 1 = 1
+symbol_binomial_sum = symbol_binomial_sum + (location choose count) = 0 + (1 choose 1) = 1
 no more 'i' locations
 encoding_accumulator = encoding_accumulator + combiner * symbol_binomial_sum
 encoding_accumulator = 0 + 1 * 1 = 1
@@ -348,5 +348,5 @@ message[1+2=>3] = 'e'
 There and back again, decoding is complete.
 
 
-If you enjoyed that and would like to help me make more you could consider [Donating].  
-More info in the [README].
+If you enjoyed that and would like to help me make more you could consider [Supporting](https://github.com/Peter-Ebert/Valli-Encoding#support).  
+More info in the [README](README.md).
