@@ -1,6 +1,5 @@
 # Valli-Encoding
-**EDIT: I'm learning the Shannon limit may not apply here, since I am relying on the changing symbol counts to encode the remaining data, please bear with me I will correct errors as the dust settles.**  
-Proof of concept entropy encoder with output size below the Shannon limit.
+A compression algorithm that uses combinatorics (binomials).
 
 **Table of Contents**  
 * [Introduction](#introduction)  
@@ -10,28 +9,25 @@ Proof of concept entropy encoder with output size below the Shannon limit.
 * [Final Thoughts](#final-thoughts)  
 
 ## Introduction
-This repository contains a basic *proof of concept* implementation of what I'd like to call Valli encoding, an entropy encoder whose output is below the Shannon limit  (lossless compression per the [source coding theorem](https://en.wikipedia.org/wiki/Shannon%27s_source_coding_theorem)).  It fits the definition of an entropy encoder as it can losslessly encode all permutations of a given set of symbol frequencies in a fixed amount of space.  The symbol locations are treated as i.i.d, there is no information about the structure/order of the data (as opposed to Lempel-Ziv style compressors) though it does leverage the symbol frequencies in a way that typical entropy encoders do not, requiring them to be exact counts.  
+This repository contains a basic *proof of concept* implementation of what I'd like to call Valli encoding, which leverages the exact count of the symbol frequencies to compress the input with combinatorics.  The input is processed one unique symbol at a time using the number of combinations (binomials) that could occur before placing each symbol, the sum of which generates a single symbol's encoding.  These symbol encodings can then be combined together based on the number of permutations of each preceeding symbol.  For a more detailed walkthrough see [how the code works](the-algorithm.md).
 
-I'd be happy to be politely corrected if this already exists, as far as I can tell this is a novel approach, but I am just a problem solver for fun.  On the other hand, if you're thinking output this small is impossible, so did I at the start.  
+I'd be happy to be politely corrected if this already exists, as far as I can tell this is a novel approach, but I am just a problem solver for fun.  If I use any terminology incorrectly please correct me with references, that's how I learn best.
 
-For a mathematical explanation: Compare the total size dictated by the Shannon limit to the size it would take to store the number of permutations ([multinomial](https://en.wikipedia.org/wiki/Multinomial_theorem)) of the same symbol frequencies, since by the [pigeonhole principal](https://en.wikipedia.org/wiki/Pigeonhole_principle) each unique integer value can store each unique permutation.  The Shannon limit uses Stirling's approximation which is an asymptotic approximation for factorials and as such the approximation is too large for small values and becomes more accurate as the factorial size (i.e. message length and symbol count) approaches infinity.  
-As an example, given the symbol frequencies of 1, 2, and 3 for a total of 6 symbols.  
-**Shannon limit**  
-[-(1/6)*log2(1/6)-(2/6)*log2(2/6)-(3/6)*log2(3/6)]*6 = 8.75 => 9 bits  
-**Non-Asymptotic/Multinomial limit**  
-Log2(6!/(1!*2!*3!))) = Log2(60) = 5.91 => 6 bits  
-
-For a more concrete example of how this is possible: Given a message with two symbols in a 1:1 ratio, typical entropy encoders (Huffman, ANS, etc) would require 1 bit per symbol, with 0 representing one symbol and 1 representing the other.  As an example, if the total message length is 8 symbols with a 4:4 ratio the Shannon source coding theorem would require an output size of 8 bits total with 4 zeros and 4 ones.  Eight bits are capable of storing $2^8=256$ different values, however the total number of permutations of our input/output is only 8 choose 4 or $8!/(4!*4!) = 70$.  Seventy unique values only requires 7 bits to be stored ($2^7=128$).  Stated another way, typical entropy encoders require our example to have *exactly* 4 bits set in the output, if instead output values with set bit counts from 0-3 and 5-7 are utilized then those extra values can be used to store more information in a smaller space.
-
-### The Non-Asymptotic/Multinomial Lower Bound
+The size of the output will always be the size of the total number of permutations of the symbols given the symbol frequencies table, also known as [multinomials](https://en.wikipedia.org/wiki/Multinomial_theorem#Number_of_unique_permutations_of_words)
 Let A,B,C,... = symbol counts  
 T = total count of symbols = A + B + C + ...  
 Bit size = log2( T! / (A! * B! * C! * ...) )  
 
-If you have more questions, check the [FAQ](FAQ.md).
+## Regarding the Shannon Limit
+I had only ever seen entropy calculations at the limit, one such example is in the Wikipedia entry for [arithmetic coding](https://en.wikipedia.org/wiki/Arithmetic_coding#Sources_of_inefficiency) which states for probabilities 1/3, 1/3, 1/3 "the entropy of the message would be 4.755" or 5 bits, while the multinomial would mean a size of log2(3!) = 2.585 => 3 bits.  So I was surprised when I first saw this result, as the encoding seemed to be below the Shannon limit.  However, it seems with adaptive techniques that adjust the frequencies as you encode the same size can be achieved with other entropy encoders.
+
+## The Frequency File
+I've seen some objections to the frequency file that is output separate from the compression, this was done to make it easy to check it's contents as the vli file will look like random noise.  No more information is stored in the .freq file than is in this implementation of [arithmetic encoding](https://github.com/nayuki/Reference-arithmetic-coding/blob/fde1357935494f395b4d17ca7e9e897c226ad208/python/arithmetic-compress.py#L50), I just use 8 bytes per symbol where they use 4, a fixed 2048 vs their fixed 1024 bytes.  If you remove this fixed size table and look at the difference between this encoding and the *non-adaptive* arithmetic encoding, you'll see that this algorithm produces smaller output.  Having read that arithmetic encoding was the smallest compression possible, this also initially surprised me.  Again, with more research it seems that the adaptive versions can reach compression sizes equivalent to this compression technique.
 
 ## The Algorithm
 Follow this link to see [how the code works](the-algorithm.md) in a step by step example walkthrough.
+
+If you have more questions, check the [FAQ](FAQ.md).
 
 ## Running the Code
 #### Required Dependencies:
