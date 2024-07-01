@@ -180,7 +180,8 @@ int main(int argc, char* argv[]) {
     size_t max_bit_length = mpz_sizeinbase(multiply_combiner, 2);
     cout << "Max bit length: " << max_bit_length << endl;
     
-    // Calculate the Shannon minimum bit length = shannon entropy per symbol * message length
+    // Calculate the Shannon minimum bit length, non-adaptive
+    // = shannon entropy per symbol * message length
     double shannon_entropy = 0.0;
     for (int i = 0; i < 256; i++) {
         // cout << freqs.getCount(i) << endl;
@@ -191,15 +192,19 @@ int main(int argc, char* argv[]) {
     }
     shannon_entropy = shannon_entropy * total_symbols;
 
-    cout << "Shannon bit limit: " << ceil(shannon_entropy) << endl;
+    cout << "Static frequency Shannon limit: " << ceil(shannon_entropy) << endl;
     cout << "Bits saved: " << ceil(shannon_entropy)-max_bit_length << endl;
     cout << "Relative Size: " << 100 * (max_bit_length / ceil(shannon_entropy)) << "%" << endl;
 
     // Write compressed data and frequencies table
     if(write_file) {
-        cout << "Writing compressed encoding to: " << filename_entropy << endl;
+        cout << "Writing compressed data to: " << filename_entropy << endl;
         ofstream out_file(filename_entropy);
+        //write frequency table
+        cout << "Frequency table size (bytes): " << freqs.serialize(out_file) << endl;
+        // write encoded data
         size_t out_size = mpz_sizeinbase(data_accumulator, 256);
+        cout << "Encoded data (bytes): " << out_size << endl;
         unsigned char *output_array = new unsigned char[out_size];
         //         output_array, word_count, order, size, endian, nails, data
         mpz_export(output_array, NULL,     1,    1,     -1,     0, data_accumulator);
@@ -207,13 +212,9 @@ int main(int argc, char* argv[]) {
             // if output == 0, gmp will not write to the array
             output_array[0] = 0;
         }
-
         out_file.write((char *)output_array, out_size);
         delete[] output_array;
         out_file.close();
-        cout << "Writing frequency table to: " << filename_freq_table << endl;
-        out_file.open(filename_freq_table);
-        out_file.write((char*)freqs.data, sizeof(freqs.data));
     } else {
         cout << "Skipping data write." << endl;
     }

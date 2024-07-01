@@ -34,7 +34,8 @@ int main(int argc, char* argv[]) {
     string file_ending = ".vli";
     // Ensure file ending is .vli, no other validation performed.
     // Will error out (vector out of bounds) if the encoded data value is too large for the frequency counts.
-    // Since this would only be caused by user error/manipulation, leaving unhandled for now.
+    // Since this *should* only be caused by user error/manipulation, leaving unhandled for now.
+    // *could also be cause by bugs, please report any issues
     // Else, every value smaller than the max permutations will decompress to some permutation of symbols.
     if (!(compressed_path_file.length() >= file_ending.length() && compressed_path_file.compare(compressed_path_file.length() - file_ending.length(), file_ending.length(), file_ending) == 0)) {
         cout << "Invalid filename, must end with '.vli'" << endl;
@@ -51,33 +52,22 @@ int main(int argc, char* argv[]) {
     cout << "Frequencies file: " << filename_freq_table << endl;
     cout << "Output file: " << filename_out << endl;
 
-    mpz_t     compressed_data, symbol_combo, extracted_combo, root_result, binomial, numerator, denominator, factorial, uncombiner, est_binomial;
-    mpz_inits(compressed_data, symbol_combo, extracted_combo, root_result, binomial, numerator, denominator, factorial, uncombiner, est_binomial, NULL);
-
-    std::vector<char> input_buffer;
-    if(!FileToCharVector(compressed_path_file, input_buffer)) {
-        cout << "File not found." << endl;
-        exit(1);
-    }
-    cout << "file size bytes: " << input_buffer.size() << endl;
-
-    mpz_inits(compressed_data, NULL);
-    // export and import must match
-    // mpz_export(output_array, NULL,                1, 1, -1, 0, data_accumulator);
-    mpz_import(compressed_data, input_buffer.size(), 1, 1, -1, 0, input_buffer.data()); 
-
-    // verbose info
-    gmp_printf("Imported Integer: %Zd\n", compressed_data);
-
-    // read frequencies
-    ifstream freq_file(filename_freq_table);
-    if(!freq_file.is_open()) {
-        cout << "Matching frequencies file not found: " << filename_freq_table << endl;
+    // read file
+    std::ifstream input_file(compressed_path_file, std::ios::binary);
+    if (!input_file) {
+        // Handle file open error
+        std::cerr << "Error opening file, most likely file does not exist." << std::endl;
         return 1;
     }
-
+    // deserialize frequency table at start of file
     FreqChar freqs;
-    freq_file.read((char*)freqs.data, sizeof(freqs.data));
+    size_t freq_byte_count = freqs.deserialize(input_file);
+    if (!input_file) {
+        std::cerr << "Error reading frequency table." << std::endl;
+        return 1;
+    }
+    cout << "Frequency table size (bytes):" << freq_byte_count << endl;
+    
     cout << "Frequencies:" << endl;
     cout << "int : char : count" << endl;
     uint64_t total_symbols = 0;
@@ -89,13 +79,31 @@ int main(int argc, char* argv[]) {
             unique_symbols++;
         }
     }
-
-    if(unique_symbols==1) {
-        // todo: handle this case, not implemented
-        cout << "There is only 1 unique symbol, nothing to decode, aborting." << endl;
+    
+    // load encoding into input_buffer
+    std::vector<char> input_buffer((std::istreambuf_iterator<char>(input_file)), std::istreambuf_iterator<char>());
+    // Check successful file read
+    if (!input_file && !input_file.eof()) {
+        std::cerr << "Error reading encoding." << std::endl;
         return 1;
     }
+    input_file.close();
+    cout << "Encoding size (bytes): " << input_buffer.size() << endl;
 
+    mpz_t     compressed_data, symbol_combo, extracted_combo, root_result, binomial, numerator, denominator, factorial, uncombiner, est_binomial;
+    mpz_inits(compressed_data, symbol_combo, extracted_combo, root_result, binomial, numerator, denominator, factorial, uncombiner, est_binomial, NULL);
+
+    // export and import must match
+    // mpz_export(output_array, NULL,                1, 1, -1, 0, data_accumulator);
+    mpz_import(compressed_data, input_buffer.size(), 1, 1, -1, 0, input_buffer.data());
+
+    // verbose info
+    gmp_printf("Imported Integer: %Zd\n", compressed_data);
+    if(unique_symbols < 1) {
+        // todo: handle this case, not implemented
+        cout << "Not enough unique symbols, 2 required in current implementation, aborting." << endl;
+        return 1;
+    }
     
     // This implementation fills the output message buffer with the
     // last symbol and uses it as an 'empty' location indicator.

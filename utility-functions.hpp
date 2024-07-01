@@ -4,38 +4,7 @@
 #include <vector>
 #include <gmp.h>  //mpz_t
 
-using namespace std;
-
-// Simple structure to contain the dictionary information.
-// No attempt is made to compress the dictionary in this simple POC.
-// Consists of an array of 64 bit numbers,
-// The first 7 most significant bytes store the count
-// and the last byte stores the character being counted
-// This allows for consistent sorting directly on the full 64 bits
-// There are many simple ways it could be compressed
-// even 0 count charaters are stored for example
-// Size is always 256*8 = 2048 bytes 
-struct FreqChar {
-    uint64_t data[256] = {0};
-    unsigned char getChar(unsigned char i) {
-        return data[i];
-    }
-    void setCount(unsigned char i, size_t c) {
-        data[i] += c << 8;
-    }
-    uint64_t getCount(unsigned char i) {
-        return data[i] >> 8;
-    }
-    void incrCount(unsigned char i) {
-        data[i] += 1ull << 8;
-        //warning: no overflow detection
-    }
-    //sort the dictionary by frequency, ascending
-    void sortData() {
-        sort(data, data+(sizeof(data)/sizeof(data[0])));
-    }
-
-};
+#include "frequency-table.hpp"
 
 
 // returns if read is valid: true = valid
@@ -67,7 +36,7 @@ void CalcFrequencyPairs(std::vector<char> &buffer, FreqChar &freqs) {
     for (size_t i=0; i < buffer.size(); i++) {
         freqs.incrCount(buffer[i]);
         if(buffer[i] < 0) {
-            cout << "index: " << i << " value:" << buffer[i] << endl;
+            std::cout << "index: " << i << " value:" << buffer[i] << std::endl;
         }
     }
 }
