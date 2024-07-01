@@ -18,7 +18,7 @@ Let A,B,C,... = symbol counts
 T = total count of symbols = A + B + C + ...  
 Bit size = log2( T! / (A! * B! * C! * ...) )  
 
-## Frequency File
+## The Frequency Table
 **\*NEW\*** I've combined the frequency table and encoding together into a single file.  The frequency table uses only very basic bit packing for the counts, the characters are stored as raw bytes, some compression would make it even smaller.  Even so, the total file length sometimes beats the best adaptive arithmetic coder implementations I've found online: [Reference-arithmetic-coding](https://github.com/nayuki/Reference-arithmetic-coding/blob/master/python/adaptive-arithmetic-compress.py).  If the dictionary is too large compared to the message, arithmetic will win, I've included testfiles that demonstrate this (testfiles/panagram).
 
 **Please do link me to better pure arithmetic/ANS entropy encoder implementations that produce smaller output**, you can share them through creating a new "issue" at the top of the page.  I'm not as interested in encoders that use LZ/LZW/PPM/NN/etc since this compression only knows the frequencies and I of course expect those more advanced compression algorithms to be better.
@@ -31,7 +31,7 @@ If you have more questions, check the [FAQ](FAQ.md).
 ## Running the Code
 #### Required Dependencies:
 * [GMP library](https://gmplib.org/) - Used for large integer math. Unfortunately there isn't one simple command for this, use your favorite search engine or LLM with your OS version specified.
-* A 64 bit CPU that supports LZCNT, most modern 64 bit CPUs will, except possibly Apple's M series...  This is for fast bit packing of the frequency table.
+* A 64 bit CPU that supports LZCNT, most modern Intel/AMD 64 bit CPUs will, except it seems the Apple's M series.  This is for fast bit packing of the frequency table.  If anyone wants to contribute a LZCNT equivlaent for ARM please do reach out.
 #### Recommended (optional):
 * Clang - GCC should work too just haven't tested.
 * C++17 - known to be working, other C++ standards should should work but are not tested.  Some shortcuts like "auto" are used which require at least C++11 but could be rewritten.
