@@ -10,7 +10,7 @@ A compression algorithm that uses combinatorics (binomials/multinomials).
 * [Final Thoughts](#final-thoughts)  
 
 ## Introduction
-This repository contains a basic *proof of concept* implementation of what I'd like to call Valli encoding, which leverages the exact count of the symbol frequencies to compress the input with combinatorics.  The input is processed one unique symbol at a time using the number of combinations (binomials) that could occur before placing each symbol, the sum of which generates a single symbol's encoding.  These symbol encodings can then be combined together based on the number of permutations of each preceeding symbol.  For a more detailed walkthrough see [how the code works](the-algorithm.md).
+This repository contains a basic *proof of concept* implementation of what I'd like to call Valli encoding, which leverages the exact count of the symbol frequencies to compress the input with combinatorics.  The output will be some number between 0 (inclusive) and the number of permutations of symbols in the frequency table (exclusive).  The input is processed one unique symbol at a time using the number of combinations (binomials) that could occur before placing each symbol, the sum of which generates a single symbol's encoding.  These symbol encodings can then be combined together based on the number of permutations of each preceeding symbol.  For a more detailed walkthrough see [how the code works](the-algorithm.md).
 
 I'd be happy to be politely corrected if this already exists, as far as I can tell this is a novel approach, but I am just a problem solver for fun.  If I use any terminology incorrectly please correct me with references, that's how I learn best.
 
@@ -31,7 +31,7 @@ A moderately sized input that uses many different letters and symbols.
 | [Adaptive AC](https://github.com/nayuki/Reference-arithmetic-coding/blob/master/python/adaptive-arithmetic-compress.py) | N/A        | 5611     | 5611               |
 | Valli                                                                                                                   | 101        | 5395     | **5496**           |
 
-\*\*Their code does not compress the frequency table, since they're equivalent I've used my compressed implementation's size instead.
+\*\*Their code does not compress the frequency table, since they're equivalent I've used my implementation's bit packed table instead.
 
 #### Data: pangram - 43 bytes
 Worst case scenario for frequency table size vs message size.
@@ -43,7 +43,7 @@ Worst case scenario for frequency table size vs message size.
 | Valli                                                                                                                   | 34         | **19**   | 53                 |
 
 #### Data: tongue_twister - 35 bytes
-Many repeated syllables leads to a smaller dictionary.
+Many repeated syllables leads to a smaller frequency table.
 
 | Algorithm                                                                                                               | Freq Table | Encoding | Total Size (bytes) |
 | ----------------------------------------------------------------------------------------------------------------------- | ---------- | -------- | ------------------ |
@@ -71,7 +71,7 @@ I've combined the frequency table and encoding together into a single file, you 
 ## Running the Code
 #### Required Dependencies:
 * [GMP library](https://gmplib.org/) - Used for large integer math. Unfortunately there isn't one simple command for this, use your favorite search engine or LLM with your OS version specified.
-* A 64 bit CPU that supports LZCNT, most modern Intel/AMD 64 bit CPUs will, except it seems the Apple's M series.  This is for fast bit packing of the frequency table.  If anyone wants to contribute a LZCNT equivlaent for ARM please do reach out.
+* A 64 bit CPU that supports LZCNT, most modern Intel/AMD 64 bit CPUs will, except it seems Apple's M series.  This is for fast bit packing of the frequency table.  If anyone wants to contribute a LZCNT equivlaent for ARM please do reach out.
 #### Recommended (optional):
 * Clang - GCC should work too just haven't tested.
 * C++17 - known to be working, other C++ standards should should work but are not tested.  Some shortcuts like "auto" are used which require at least C++11 but could be rewritten.
@@ -111,7 +111,7 @@ Files testfiles/input1 and testfiles/input1.decom are identical
 ```
 
 ## Support
-Ideally knowledge would be free, but it takes time and effort to create and communicate, all the while one cannot live on ideas and dissertations alone.  With the emergence of sites that enable direct support from viewers like Patreon and Twitch/Youtube, I hope exchanging this content for financial support isn't asking too much.  If you enjoyed this as much as a drink, a movie, or more and have the ability to help out I'd greatly appreciate it.   
+Ideally knowledge should be free, but it takes time and effort to create and communicate, all the while one cannot live on ideas and dissertations alone.  With the emergence of sites that enable direct support from viewers like Patreon and Twitch/Youtube, I hope the idea of exchanging content for financial support isn't asking too much.  If you enjoyed this as much as a drink, a movie, or more and have the ability to help out I'd greatly appreciate it and it would help encourage future posts.   
 
 [Support this project](https://www.paypal.com/donate/?business=S7Q76A99VU44W&no_recurring=0&currency_code=USD)  
 The receipt will have an email address if you want to send questions/requests, if you've donated I'll do my best to answer them if not in the README/[FAQ](FAQ.md).
@@ -119,12 +119,16 @@ The receipt will have an email address if you want to send questions/requests, i
 I have more ideas I'd like to explore, but I quit my job to work on this and have spent the funds I put aside.  I'm grateful and lucky to have had the chance to set aside time to work on this and never intended to make money off it, so any donations would encourage further research or improvements.
 
 ## Some Parting Thoughts
-This approach for encoding is admittedly is not very practical, given it's factorial / polynomial nature and the fact encoding requires changing every bit along the entire length of the compressed value (bad for cpu caches), but it is fun to think about how this the absolute smallest we can possibly get for random symbol locations and with relatively simple math.  There are more ways to speed up the processing but I've left that out for now since it also makes the code harder to read.
+This approach for encoding is admittedly is not very practical given it's factorial / polynomial nature and the fact encoding requires changing every bit along the entire length of the compressed value (bad once outside of cpu caches).  Memory and storage are ample these days so the few bytes it saves may not be worth it.
 
-The dataset I originally set out to compress was bit sets from hash values (e.g. probablistic counts, bloom filters), so it may have some applications there since those datasets don't normally compress very well.  Memory and storage are ample these days so the few bytes it saves may not seem significant, but it's worth noting that even a 1 bit reduction means we've reduced the number of possible values in half.
+However, I would still assert that mathematically it is interesting.  The encoding is optimal in that the encoded data will not exceed the size of the number of permutations.  I am not an expert but afaik this puts it in the same category as only two other encoders: Arithmetic coding and Asymmetric numeral systems (ANS).  Though we only save a few bytes/bits compared to a fast encoder with a static frequency table, it's worth noting mathematically that a one bit reduction means we've reduced the number of encodable values in half.  The dataset that originally interested me in compression was bit sets generated from hash values (e.g. probabilistic counts, bloom filters), so it may have some applications there since those datasets don't normally compress very well.
+
+#### Addition is All you Need
+Though you could boil down many different operations like multiplication into addition with loops, the binomials that make up the encoding are deeply related to repeated addition as they make up pascal's triangle.  Likewise, those binomials are then added together to produce an encoding for a single symbol.  This seems somewhat unique, as in ANS's math the state itself is divided and multiplied to create the next state.  Therefore, it is possible to implement this entire encoding using addition almost exclusively.
 
 #### Parallelizable
 Another noteworthy feature is this algorithm can be parallelized per unique symbol, as far as I know no other compression algorithm is parallelizable without sacrificing the compression ratio (not counting large lookup tables which can compress multiple symbols at once, which are still sequential in nature).  We could also consider not combining individual symbol encodings (binomial sums) together, instead storing each unique symbol separately, as combining only saves <1 bit per unique symbol and combining uses expensive large number multiplication.
 
 #### Next
-I have more ideas, but have run out of time and resources and figured it was best to share the idea to see if it was new.  If there's more interest or support I might get to those ideas.  For now I hope you enjoyed this as much as I did making it.
+I have more ideas, especially around optimization, but have run out of time and resources and figured it was best to share the idea first to see if it was new.  If there's more interest or support I might get to those ideas.  For now I hope you enjoyed this as much as I did making it.
+
