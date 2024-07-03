@@ -30,6 +30,7 @@ A moderately sized input that uses many different letters and symbols.
 | [Static AC](https://github.com/nayuki/Reference-arithmetic-coding/blob/master/python/arithmetic-compress.py)            | 101**      | 5423     | 5524               |
 | [Adaptive AC](https://github.com/nayuki/Reference-arithmetic-coding/blob/master/python/adaptive-arithmetic-compress.py) | N/A        | 5611     | 5611               |
 | Valli                                                                                                                   | 101        | 5395     | **5496**           |
+
 \*\*Their code does not compress the frequency table, since they're equivalent I've used my compressed implementation's size instead.
 
 #### Data: pangram - 43 bytes
