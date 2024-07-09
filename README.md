@@ -111,10 +111,10 @@ Files testfiles/input1 and testfiles/input1.decom are identical
 ```
 
 ## Support
-Ideally knowledge should be free, but it takes time and effort to create and communicate, all the while one cannot live on ideas and dissertations alone.  With the emergence of sites that enable direct support from viewers like Patreon and Twitch/Youtube, I hope the idea of exchanging content for financial support isn't asking too much.  If you enjoyed this as much as a drink, a movie, or more and have the ability to help out I'd greatly appreciate it and it would help encourage future posts.   
+Ideally knowledge would be free, but it takes time and effort to create and communicate, all the while one cannot live on ideas and dissertations alone.  With the emergence of sites that enable direct support from viewers like Patreon and Twitch/Youtube, I hope the idea of exchanging content for financial support isn't asking too much.  If you enjoyed this as much as a drink, a movie, or more and have the ability to help out I'd greatly appreciate it and it would help encourage future posts.  
 
 [Support this project](https://www.paypal.com/donate/?business=S7Q76A99VU44W&no_recurring=0&currency_code=USD)  
-The receipt will have an email address if you want to send questions/requests, if you've donated I'll do my best to answer them if not in the README/[FAQ](FAQ.md).
+The receipt will have an email address if you want to send questions/requests, if you've donated I'll do my best to answer them if not in the README/[FAQ](FAQ.md).  
 
 I have more ideas I'd like to explore, but I quit my job to work on this and have spent the funds I put aside.  I'm grateful and lucky to have had the chance to set aside time to work on this and never intended to make money off it, so any donations would encourage further research or improvements.
 
