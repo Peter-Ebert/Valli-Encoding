@@ -180,7 +180,7 @@ int main(int argc, char* argv[]) {
     size_t max_bit_length = mpz_sizeinbase(multiply_combiner, 2);
     cout << "Max bit length: " << max_bit_length << endl;
     
-    // Calculate the Shannon minimum bit length, non-adaptive
+    // Calculate the Shannon minimum bit length, static frequency table
     // = shannon entropy per symbol * message length
     double shannon_entropy = 0.0;
     for (int i = 0; i < 256; i++) {

@@ -113,6 +113,7 @@ struct FreqChar {
         uint8_t byte_buffer;
         input_file.read((char*)&byte_buffer, 1);
         uint8_t bit_length = byte_buffer & 0b00111111;
+
         uint8_t bit_offset = 6;
         int symbol_count = 0;
         // count loop
@@ -142,8 +143,6 @@ struct FreqChar {
             }
             //set the count, ascending order
             this->setCount(255-symbol_count, count);
-            // debug output
-            // std::cout << "---count: " << count << std::endl;
             // exit loop if the count is 0 (last in sequence)
             if(count==0) {
                 break;
@@ -152,7 +151,7 @@ struct FreqChar {
             // update bit_length with current length
             bit_length = (64 - _lzcnt_u64(count));
 
-        } while(symbol_count < 60); //for safety, can be removed, unreachable
+        } while(symbol_count < 255); //for safety, can be removed, unreachable
 
         // if bit_offset == 0, it contains a symbol
         // else unset bits, read next byte
