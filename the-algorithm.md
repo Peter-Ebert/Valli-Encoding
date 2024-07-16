@@ -229,7 +229,7 @@ location_estimate = (symbol_binomial_sum * count!)^(1/count) + count//2
 location_estimate = (16*2!)^(1/2)+2//2 = 6
 # verify estimate
 # check overestimate, can only overestimate by 1 with this approach
-current_binomial = location_estimate choose count = 7 choose 4 = 35
+current_binomial = location_estimate choose count = 6 choose 2 = 15
 if current_binomial > symbol_binomial_sum:
     # 15 > 16 => false, no underestimation
     location_estimate -= 1
