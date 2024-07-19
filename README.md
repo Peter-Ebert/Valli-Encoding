@@ -12,7 +12,7 @@ A compression algorithm that uses combinatorics (binomials/multinomials).
 ## Introduction
 This repository contains a basic *proof of concept* implementation of what I'd like to call Valli encoding, which leverages the exact count of the symbol frequencies to compress the input with combinatorics.  The output will be some number between 0 (inclusive) and the number of permutations of symbols in the frequency table (exclusive).  The input is processed one unique symbol at a time using the number of combinations (binomials) that could occur before placing each symbol, the sum of which generates a single symbol's encoding.  These symbol encodings can then be combined together based on the number of permutations of each preceeding symbol.  For a more detailed walkthrough see [how the code works](the-algorithm.md).
 
-I'd be happy to be politely corrected if this already exists, as far as I can tell this is a novel approach, but I am just a problem solver for fun.  If I use any terminology incorrectly please correct me with references, that's how I learn best.
+I'd be happy to be politely corrected if this already exists, as far as I can tell this is a novel approach, but I am just a problem solver for fun.  Feel free to raise an issue for that or other feedback.
 
 The size of the output will always be the size of the total number of permutations of the symbols given the symbol frequencies table, also known as [multinomials](https://en.wikipedia.org/wiki/Multinomial_theorem#Number_of_unique_permutations_of_words):  
 Let A,B,C,... = symbol counts  
@@ -29,9 +29,11 @@ A moderately sized input that uses many different letters and symbols.
 | ----------------------------------------------------------------------------------------------------------------------- | ---------- | -------- | ------------------ |
 | [Static AC](https://github.com/nayuki/Reference-arithmetic-coding/blob/master/python/arithmetic-compress.py)            | 101**      | 5423     | 5524               |
 | [Adaptive AC](https://github.com/nayuki/Reference-arithmetic-coding/blob/master/python/adaptive-arithmetic-compress.py) | N/A        | 5611     | 5611               |
+| [rANS](https://github.com/rygorous/ryg_rans)                                                                            | 101**      | 5428     | 5529               |
 | Valli                                                                                                                   | 101        | 5395     | **5496**           |
 
-\*\*Their code does not compress the frequency table, since they're equivalent I've used my implementation's bit packed table instead.
+
+\*\*Their code does not compress the frequency table, so I've used my implementation's smaller bit packed table size instead.
 
 #### Data: pangram - 43 bytes
 Worst case scenario for frequency table size vs message size.
